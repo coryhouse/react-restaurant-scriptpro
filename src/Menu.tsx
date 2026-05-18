@@ -1,6 +1,34 @@
-import { foods } from "./food";
+import { useEffect, useState } from "react";
+import type { Food } from "./food";
 
 export default function Menu() {
+  const [loading, setLoading] = useState(true);
+  const [foods, setFoods] = useState<Food[]>([]);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    fetch("http://localhost:3001/food")
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        setFoods(data);
+      }).catch((err) => {
+        setError(err);
+      }).finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  if (error) {
+    return <div className="p-6">Oops!</div>;
+  }
+
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
+  }
+
   return (
     <div className="p-6">
       <h1>Menu</h1>
