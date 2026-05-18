@@ -1,5 +1,11 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
 
 export const Route = createRootRoute({
-  component: () => <Outlet />,
+  component: () =>
+    <>
+      <nav>
+        <Link to="/">Home</Link> | <Link to="/admin">Admin</Link>
+      </nav>
+      <Outlet />
+    </>
 })
