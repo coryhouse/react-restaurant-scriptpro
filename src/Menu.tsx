@@ -7,7 +7,7 @@ export default function Menu() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    fetch("http://localhost:3001/food")
+    fetch("http://localhost:3001/foods")
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
