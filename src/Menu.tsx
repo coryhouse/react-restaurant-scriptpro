@@ -1,31 +1,18 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { Food } from "./food";
 
 export default function Menu() {
-  const [loading, setLoading] = useState(true);
-  const [foods, setFoods] = useState<Food[]>([]);
-  const [error, setError] = useState<Error | null>(null);
+  const { data: foods = [], isLoading, isError } = useQuery<Food[]>({
+    queryKey: ["foods"],
+    queryFn: () =>
+      fetch("http://localhost:3001/foods").then((res) => res.json()),
+  })
 
-  useEffect(() => {
-    fetch("http://localhost:3001/foods")
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json();
-      })
-      .then((data) => {
-        setFoods(data);
-      }).catch((err) => {
-        setError(err);
-      }).finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  if (error) {
+  if (isError) {
     return <div className="p-6">Oops!</div>;
   }
 
-  if (loading) {
+  if (isLoading) {
     return <div className="p-6">Loading...</div>;
   }
 
