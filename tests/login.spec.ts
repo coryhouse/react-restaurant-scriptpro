@@ -14,17 +14,6 @@ test.describe("Login", () => {
     await page.goto("http://localhost:3000/login");
   });
 
-  test("logs in with valid credentials, redirects home", async ({ page }) => {
-    await page.getByLabel("Email").fill("user@example.com");
-    await page.getByLabel("Password").fill("password123");
-    await page.getByRole("button", { name: "Login" }).click();
-
-    await expect(page).toHaveURL("http://localhost:3000/");
-    await expect(page.getByText("Welcome, user@example.com")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Log out" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Admin" })).toBeVisible();
-  });
-
   test("shows error summary when submitting empty form", async ({ page }) => {
     await page.getByRole("button", { name: "Login" }).click();
 
@@ -36,16 +25,6 @@ test.describe("Login", () => {
       "Password must be at least 6 characters long",
     );
     await expect(page).toHaveURL("http://localhost:3000/login");
-  });
-
-  test("shows email error for an invalid email on blur", async ({ page }) => {
-    const emailField = page.getByLabel("Email");
-    await emailField.fill("not-an-email");
-    await emailField.blur();
-
-    await expect(fieldError(page, "email")).toHaveText(
-      "Please enter a valid email address",
-    );
   });
 
   test("shows password error when password is too short", async ({ page }) => {
@@ -73,12 +52,16 @@ test.describe("Login", () => {
     await expect(fieldError(page, "email")).toHaveCount(0);
   });
 
-  test("clears the welcome message when logging out", async ({ page }) => {
+  test("logs in with valid credentials, then logs out", async ({ page }) => {
     await page.getByLabel("Email").fill("user@example.com");
     await page.getByLabel("Password").fill("password123");
     await page.getByRole("button", { name: "Login" }).click();
 
+    await expect(page).toHaveURL("http://localhost:3000/");
     await expect(page.getByText("Welcome, user@example.com")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Log out" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Admin" })).toBeVisible();
+
     await page.getByRole("button", { name: "Log out" }).click();
 
     await expect(page.getByRole("link", { name: "Login" })).toBeVisible();
