@@ -2,11 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import type { Food } from "./food";
 
 export default function Menu() {
-  const { data: foods = [], isLoading, isError } = useQuery<Food[]>({
+  const {
+    data: foods = [],
+    isLoading,
+    isError,
+  } = useQuery<Food[]>({
     queryKey: ["foods"],
     queryFn: () =>
       fetch("http://localhost:3001/foods").then((res) => res.json()),
-  })
+  });
 
   if (isError) {
     return <div className="p-6">Oops!</div>;
