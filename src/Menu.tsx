@@ -1,20 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Food } from "./food";
+import { foodSchema } from "./food";
 
 export default function Menu() {
-  const {
-    data: foods = [],
-    isLoading,
-    isError,
-  } = useQuery<Food[]>({
+  const { data: foods = [], isLoading } = useQuery({
     queryKey: ["foods"],
-    queryFn: () =>
-      fetch("http://localhost:3001/foods").then((res) => res.json()),
+    throwOnError: true,
+    queryFn: async () => {
+      const resp = await fetch("http://localhost:3001/foods");
+      if (!resp.ok) {
+        throw new Error("Failed to fetch foods");
+      }
+      const data = await resp.json();
+      return foodSchema.array().parse(data); // runtime validation
+    },
   });
-
-  if (isError) {
-    return <div className="p-6">Oops!</div>;
-  }
 
   if (isLoading) {
     return <div className="p-6">Loading...</div>;

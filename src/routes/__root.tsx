@@ -4,7 +4,8 @@ export const Route = createRootRoute({
   component: () => (
     <>
       <nav>
-        <Link to="/">Home</Link> | <Link to="/admin">Admin</Link>
+        <Link to="/">Home</Link> | <Link to="/admin">Admin</Link> |{" "}
+        <Link to="/login">Login</Link>
       </nav>
       <Outlet />
     </>
