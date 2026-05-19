@@ -73,7 +73,7 @@ test.describe("Login", () => {
     await expect(fieldError(page, "email")).toHaveCount(0);
   });
 
-  test("logging out clears the welcome message", async ({ page }) => {
+  test("clears the welcome message when logging out", async ({ page }) => {
     await page.getByLabel("Email").fill("user@example.com");
     await page.getByLabel("Password").fill("password123");
     await page.getByRole("button", { name: "Login" }).click();
