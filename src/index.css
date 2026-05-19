@@ -14,10 +14,9 @@ h2 {
 }
 
 @theme inline {
-
   --font-heading: var(--font-sans);
 
-  --font-sans: 'Geist Variable', sans-serif;
+  --font-sans: "Geist Variable", sans-serif;
 
   --color-sidebar-ring: var(--sidebar-ring);
 
@@ -97,7 +96,6 @@ h2 {
 }
 
 :root {
-
   --background: oklch(1 0 0);
 
   --foreground: oklch(0.145 0 0);
@@ -164,7 +162,6 @@ h2 {
 }
 
 .dark {
-
   --background: oklch(0.145 0 0);
 
   --foreground: oklch(0.985 0 0);
