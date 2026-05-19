@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import z from "zod";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Field, FieldError, FieldLabel } from "./components/ui/field";
+import { useUser } from "./UserContext";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -18,6 +20,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [touched, setTouched] = useState<LoginFormTouched>({});
+  const { setEmail: setUserEmail } = useUser();
+  const navigate = useNavigate();
 
   function validateField(field: LoginField, value: string) {
     const result = loginSchema.shape[field].safeParse(value);
@@ -47,7 +51,8 @@ export default function Login() {
             return;
           }
           setErrors({});
-          console.log(result.data.email, result.data.password);
+          setUserEmail(result.data.email);
+          navigate({ to: "/" });
         }}
       >
         {Object.values(errors).some(Boolean) && (
