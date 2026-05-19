@@ -11,18 +11,3 @@ export const Route = createRootRoute({
     </>
   ),
 });
-
-const x = 1;
-const y = 2;
-
-const myArrow = () => {
-  function myFunc() {
-    return x === 1 ? "one" : "two";
-  }
-
-  return (
-    <>
-      <button>{myFunc()}</button>
-    </>
-  );
-};
