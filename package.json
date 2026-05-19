@@ -10,7 +10,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.9",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.60.0",
     "@tanstack/router-plugin": "^1.168.6",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
