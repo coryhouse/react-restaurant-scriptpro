@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/UserContext";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { Toaster } from "sonner";
 
 export const Route = createRootRoute({
   component: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const { email, setEmail } = useUser();
     return (
       <>
@@ -24,6 +26,7 @@ export const Route = createRootRoute({
           )}
         </nav>
         <Outlet />
+        <Toaster richColors position="top-right" />
       </>
     );
   },
