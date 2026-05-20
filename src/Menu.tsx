@@ -1,7 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
-import { foodSchema } from "./food";
+import { foodSchema, foodTags, type FoodTag } from "./food";
+import { FieldLabel, FieldSet } from "./components/ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
+import { useState } from "react";
+import { Slider } from "./components/ui/slider";
 
 export default function Menu() {
+  const [selectedTag, setSelectedTag] = useState<FoodTag | undefined>();
+  const [search, setSearch] = useState("");
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(20);
+
   const {
     data: foods = [],
     isLoading,
@@ -27,33 +44,107 @@ export default function Menu() {
     return <div className="p-6">Loading...</div>;
   }
 
+  const matchingFoods = foods.filter(
+    (food) =>
+      (!selectedTag || food.tags.includes(selectedTag)) &&
+      food.name.toLowerCase().includes(search.toLowerCase()) &&
+      food.price >= minPrice &&
+      food.price <= maxPrice,
+  );
+
   return (
     <div className="p-6">
       <h1>Menu</h1>
-      <div className="flex flex-wrap gap-6">
-        {foods.map((food) => (
-          <div
-            key={food.id}
-            className="flex w-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+
+      <section className="flex flex-wrap items-start gap-4 pb-6">
+        <FieldSet>
+          <FieldLabel>Search</FieldLabel>
+          <input
+            type="search"
+            placeholder="Search for food..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full max-w-64 rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          />
+        </FieldSet>
+
+        <FieldSet>
+          <FieldLabel>Filter by tag</FieldLabel>
+          <Select
+            value={selectedTag ?? "all"}
+            onValueChange={(value) =>
+              setSelectedTag(value === "all" ? undefined : (value as FoodTag))
+            }
           >
-            <img
-              src={"/images/" + food.image}
-              alt={food.name}
-              className="h-48 w-full object-cover"
-            />
-            <div className="flex flex-1 flex-col p-4">
-              <h2>{food.name}</h2>
-              <p className="mb-3 flex-1">{food.description}</p>
-              <p className="mb-2 text-lg font-semibold">
-                ${food.price.toFixed(2)}
-              </p>
-              <p className="text-sm text-gray-600">
-                Tags: {food.tags.join(", ")}
-              </p>
+            <SelectTrigger className="data-[size=default]:h-[42px] w-full max-w-48">
+              <SelectValue placeholder="Select a tag" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Tags</SelectLabel>
+                <SelectItem value="all">All</SelectItem>
+                {foodTags.map((tag) => (
+                  <SelectItem key={tag} value={tag}>
+                    {tag}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </FieldSet>
+
+        <FieldSet>
+          <FieldLabel>Price</FieldLabel>
+          <div className="mx-auto grid w-full max-w-xs gap-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm text-muted-foreground">
+                ${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}
+              </span>
             </div>
+            <Slider
+              defaultValue={[0, 25]}
+              max={25}
+              step={1}
+              onValueChange={([min, max]) => {
+                setMinPrice(min);
+                setMaxPrice(max);
+              }}
+              className="mx-auto w-full max-w-xs"
+            />
           </div>
-        ))}
-      </div>
+        </FieldSet>
+      </section>
+
+      <section className="flex flex-wrap gap-6">
+        {matchingFoods.length === 0 ? (
+          <div className="pt-6">
+            <p>No matching foods found.</p>
+          </div>
+        ) : (
+          matchingFoods.map((food) => (
+            <div
+              key={food.id}
+              className="flex w-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+            >
+              <img
+                src={"/images/" + food.image}
+                alt={food.name}
+                className="h-48 w-full object-cover"
+              />
+              <div className="flex flex-1 flex-col p-4">
+                <h2>{food.name}</h2>
+                <p className="mb-3 flex-1">{food.description}</p>
+                <p className="mb-2 text-lg font-semibold">
+                  ${food.price.toFixed(2)}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Tags: {food.tags.join(", ")}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </section>
     </div>
   );
 }
