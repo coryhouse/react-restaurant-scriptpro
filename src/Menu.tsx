@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { getRouteApi } from "@tanstack/react-router";
 import { foodSchema, foodTags, type FoodTag } from "./food";
 import { FieldLabel, FieldSet } from "./components/ui/field";
 import {
@@ -10,14 +11,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./components/ui/select";
-import { useState } from "react";
 import { Slider } from "./components/ui/slider";
+import type { MenuSearch } from "./routes/index";
+
+const route = getRouteApi("/");
+
+const DEFAULT_MIN_PRICE = 0;
+const DEFAULT_MAX_PRICE = 25;
 
 export default function Menu() {
-  const [selectedTag, setSelectedTag] = useState<FoodTag | undefined>();
-  const [search, setSearch] = useState("");
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(20);
+  const search = route.useSearch();
+  const navigate = route.useNavigate();
+
+  const q = search.q ?? "";
+  const selectedTag = search.tag;
+  const minPrice = search.minPrice ?? DEFAULT_MIN_PRICE;
+  const maxPrice = search.maxPrice ?? DEFAULT_MAX_PRICE;
+
+  const updateSearch = (next: Partial<MenuSearch>) => {
+    navigate({
+      search: (prev) => {
+        const merged: MenuSearch = { ...prev, ...next };
+        if (!merged.q) delete merged.q;
+        if (!merged.tag) delete merged.tag;
+        if (merged.minPrice === DEFAULT_MIN_PRICE) delete merged.minPrice;
+        if (merged.maxPrice === DEFAULT_MAX_PRICE) delete merged.maxPrice;
+        return merged;
+      },
+      replace: true,
+    });
+  };
 
   const {
     data: foods = [],
@@ -47,7 +70,7 @@ export default function Menu() {
   const matchingFoods = foods.filter(
     (food) =>
       (!selectedTag || food.tags.includes(selectedTag)) &&
-      food.name.toLowerCase().includes(search.toLowerCase()) &&
+      food.name.toLowerCase().includes(q.toLowerCase()) &&
       food.price >= minPrice &&
       food.price <= maxPrice,
   );
@@ -62,8 +85,8 @@ export default function Menu() {
           <input
             type="search"
             placeholder="Search for food..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={q}
+            onChange={(e) => updateSearch({ q: e.target.value })}
             className="w-full max-w-64 rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
           />
         </FieldSet>
@@ -73,7 +96,9 @@ export default function Menu() {
           <Select
             value={selectedTag ?? "all"}
             onValueChange={(value) =>
-              setSelectedTag(value === "all" ? undefined : (value as FoodTag))
+              updateSearch({
+                tag: value === "all" ? undefined : (value as FoodTag),
+              })
             }
           >
             <SelectTrigger className="data-[size=default]:h-[42px] w-full max-w-48">
@@ -102,13 +127,12 @@ export default function Menu() {
               </span>
             </div>
             <Slider
-              defaultValue={[0, 25]}
+              value={[minPrice, maxPrice]}
               max={25}
               step={1}
-              onValueChange={([min, max]) => {
-                setMinPrice(min);
-                setMaxPrice(max);
-              }}
+              onValueChange={([min, max]) =>
+                updateSearch({ minPrice: min, maxPrice: max })
+              }
               className="mx-auto w-full max-w-xs"
             />
           </div>
