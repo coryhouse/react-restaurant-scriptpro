@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "check": "concurrently --names \"lint,build,test\" --prefix-colors \"yellow,green,blue\" \"npm run lint\" \"npm run build\" \"npm run test\""
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.2.9",
