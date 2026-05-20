@@ -1,0 +1,940 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu CRUD — UI design comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      [data-design] {
+        scroll-margin-top: 5rem;
+      }
+      .tradeoff-pro::before {
+        content: "+";
+        color: #16a34a;
+        font-weight: 700;
+        margin-right: 0.5rem;
+      }
+      .tradeoff-con::before {
+        content: "−";
+        color: #dc2626;
+        font-weight: 700;
+        margin-right: 0.5rem;
+      }
+      .tradeoff-note::before {
+        content: "•";
+        color: #6b7280;
+        font-weight: 700;
+        margin-right: 0.5rem;
+      }
+      .drawer-backdrop {
+        background: rgba(15, 23, 42, 0.4);
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-900 antialiased">
+    <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div>
+          <h1 class="text-xl font-semibold">Menu CRUD — UI patterns</h1>
+          <p class="text-sm text-slate-500">Five approaches for add / edit / delete, with tradeoffs.</p>
+        </div>
+        <nav class="hidden gap-4 text-sm text-slate-600 md:flex">
+          <a href="#table-modal" class="hover:text-slate-900">1. Table + modal</a>
+          <a href="#inline-table" class="hover:text-slate-900">2. Inline table</a>
+          <a href="#master-detail" class="hover:text-slate-900">3. Master-detail</a>
+          <a href="#card-drawer" class="hover:text-slate-900">4. Cards + drawer</a>
+          <a href="#dedicated-page" class="hover:text-slate-900">5. Dedicated page</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-6 py-10 space-y-16">
+      <!-- INTRO -->
+      <section>
+        <p class="max-w-3xl text-slate-600">
+          Each section below is a working mockup of one approach to managing menu items. Click around — open
+          modals, edit inline, select a row, etc. Tradeoffs are listed under each design. The data is
+          shared in memory across designs so you can see edits reflected as you switch between them.
+        </p>
+      </section>
+
+      <!-- 1. TABLE + MODAL -->
+      <section id="table-modal" data-design>
+        <div class="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-blue-600">Design 1</p>
+            <h2 class="text-2xl font-semibold">Table with modal dialog</h2>
+            <p class="mt-1 text-slate-600">
+              A scannable table. Add/Edit open a modal form; Delete prompts a confirm dialog.
+            </p>
+          </div>
+          <button
+            data-action="open-add-modal"
+            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+          >
+            + Add menu item
+          </button>
+        </div>
+
+        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Item</th>
+                <th class="px-4 py-3">Tags</th>
+                <th class="px-4 py-3">Price</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-modal-rows" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Pros</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-pro">Familiar admin pattern — low learning curve.</li>
+              <li class="tradeoff-pro">Scales well to hundreds of rows with sort/filter.</li>
+              <li class="tradeoff-pro">Modal isolates the form — clear save/cancel intent.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Cons</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-con">Context switch: modal hides the list while editing.</li>
+              <li class="tradeoff-con">Modals are awkward on mobile and for long forms.</li>
+              <li class="tradeoff-con">Not deep-linkable — refreshing loses your place.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Best for</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-note">Power users doing occasional edits.</li>
+              <li class="tradeoff-note">Short, simple forms (≤8 fields).</li>
+              <li class="tradeoff-note">Data-dense back-office tools.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. INLINE EDITABLE TABLE -->
+      <section id="inline-table" data-design>
+        <div class="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-blue-600">Design 2</p>
+            <h2 class="text-2xl font-semibold">Inline editable table</h2>
+            <p class="mt-1 text-slate-600">
+              Click any cell to edit it in place. Add row at the bottom. Delete via a row action.
+            </p>
+          </div>
+          <button
+            data-action="add-inline-row"
+            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+          >
+            + Add row
+          </button>
+        </div>
+
+        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <tr>
+                <th class="px-4 py-3">Name</th>
+                <th class="px-4 py-3">Description</th>
+                <th class="px-4 py-3 w-32">Price</th>
+                <th class="px-4 py-3 w-20"></th>
+              </tr>
+            </thead>
+            <tbody id="inline-table-rows" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Pros</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-pro">Fastest pattern for bulk edits — no modal trips.</li>
+              <li class="tradeoff-pro">Spreadsheet-like, great for tweaking many prices.</li>
+              <li class="tradeoff-pro">No context loss — you can see neighboring rows.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Cons</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-con">Discoverability — users may not realize cells are editable.</li>
+              <li class="tradeoff-con">Validation/error UI is cramped inside a cell.</li>
+              <li class="tradeoff-con">Hard to support rich fields (tag pickers, image upload).</li>
+              <li class="tradeoff-con">Accidental edits are easy; needs robust undo.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Best for</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-note">Frequent tabular edits (price changes, reorders).</li>
+              <li class="tradeoff-note">Small number of simple fields per row.</li>
+              <li class="tradeoff-note">Internal users who learn the tool deeply.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. MASTER-DETAIL -->
+      <section id="master-detail" data-design>
+        <div class="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-blue-600">Design 3</p>
+            <h2 class="text-2xl font-semibold">Master-detail split view</h2>
+            <p class="mt-1 text-slate-600">
+              List on the left, edit form on the right. Selecting a row populates the form.
+            </p>
+          </div>
+          <button
+            data-action="new-master-detail"
+            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+          >
+            + New item
+          </button>
+        </div>
+
+        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr]">
+            <ul
+              id="master-list"
+              class="max-h-[480px] divide-y divide-slate-100 overflow-y-auto border-b border-slate-200 lg:border-b-0 lg:border-r"
+            ></ul>
+            <div id="master-detail-form" class="p-6"></div>
+          </div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Pros</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-pro">Edit while keeping the list in view — no modal pop-ins.</li>
+              <li class="tradeoff-pro">Selection-based navigation is fast (arrow keys, etc.).</li>
+              <li class="tradeoff-pro">Form has room for rich fields and validation.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Cons</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-con">Eats horizontal space — bad on mobile.</li>
+              <li class="tradeoff-con">Only one item editable at a time.</li>
+              <li class="tradeoff-con">Unsaved changes when switching rows is a UX hazard.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Best for</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-note">Desktop-first admin tools (think Mail, Notion).</li>
+              <li class="tradeoff-note">Forms with many fields per item.</li>
+              <li class="tradeoff-note">Workflows where users browse + edit fluidly.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. CARDS + DRAWER -->
+      <section id="card-drawer" data-design>
+        <div class="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide text-blue-600">Design 4</p>
+            <h2 class="text-2xl font-semibold">Card grid with side drawer</h2>
+            <p class="mt-1 text-slate-600">
+              Visual cards matching the customer-facing menu. Edit/delete via hover actions; form slides in
+              from the right.
+            </p>
+          </div>
+          <button
+            data-action="open-drawer-add"
+            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+          >
+            + Add menu item
+          </button>
+        </div>
+
+        <div id="card-grid" class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Pros</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-pro">Mirrors the live menu — owners see exactly what guests see.</li>
+              <li class="tradeoff-pro">Image-forward; great for menus, products, listings.</li>
+              <li class="tradeoff-pro">Drawer keeps list visible behind a translucent backdrop.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Cons</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-con">Less information-dense than a table.</li>
+              <li class="tradeoff-con">Hover actions are invisible on touch devices.</li>
+              <li class="tradeoff-con">Drawer can feel cramped for long forms.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Best for</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-note">Catalogs where visuals matter (food, products).</li>
+              <li class="tradeoff-note">Small-to-medium catalog sizes (≤100 items).</li>
+              <li class="tradeoff-note">Users who think visually, not row-by-row.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. DEDICATED PAGE -->
+      <section id="dedicated-page" data-design>
+        <div class="mb-4">
+          <p class="text-xs font-semibold uppercase tracking-wide text-blue-600">Design 5</p>
+          <h2 class="text-2xl font-semibold">Dedicated add/edit page</h2>
+          <p class="mt-1 text-slate-600">
+            List page links to a separate route (e.g. <code class="rounded bg-slate-100 px-1">/admin/menu/:id/edit</code>).
+            Below is a mock of the edit page itself.
+          </p>
+        </div>
+
+        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div class="border-b border-slate-200 bg-slate-50 px-6 py-3 text-sm text-slate-500">
+            <a class="text-blue-600 hover:underline" href="#">← Back to menu</a>
+            <span class="mx-2">/</span>
+            <span>Edit item</span>
+          </div>
+          <form id="dedicated-form" class="grid grid-cols-1 gap-6 p-6 lg:grid-cols-[1fr_300px]"></form>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Pros</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-pro">All the room you need — supports complex forms and previews.</li>
+              <li class="tradeoff-pro">Deep-linkable — share, bookmark, refresh-safe.</li>
+              <li class="tradeoff-pro">No layout compromises; works great on mobile too.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Cons</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-con">Navigation overhead — extra click to get back to the list.</li>
+              <li class="tradeoff-con">Loses list context; bulk edits are slow.</li>
+              <li class="tradeoff-con">Harder to compare items side-by-side.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="mb-2 text-sm font-semibold text-slate-700">Best for</h3>
+            <ul class="space-y-1 text-sm text-slate-600">
+              <li class="tradeoff-note">Long forms with sub-sections (pricing, allergens, images).</li>
+              <li class="tradeoff-note">Workflows requiring confirmation steps or wizards.</li>
+              <li class="tradeoff-note">Public/CMS-style content where URL stability matters.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- RECOMMENDATION -->
+      <section class="rounded-lg border border-blue-200 bg-blue-50 p-6">
+        <h2 class="text-lg font-semibold text-blue-900">Recommendation for this app</h2>
+        <p class="mt-2 text-sm text-blue-900/90">
+          Given the menu is image-heavy and the admin already mirrors the customer-facing grid, <strong>Design 4
+          (cards + drawer)</strong> usually feels right — it keeps admins anchored in the visual model guests
+          see. If your operators do frequent bulk price changes, layer in <strong>Design 2 (inline editing)</strong>
+          as a "bulk edit" mode rather than the primary pattern. Avoid mixing modals and drawers in the same
+          screen — pick one.
+        </p>
+      </section>
+    </main>
+
+    <!-- MODAL (used by Design 1) -->
+    <div
+      id="modal"
+      class="fixed inset-0 z-30 hidden items-center justify-center drawer-backdrop p-4"
+    >
+      <div class="w-full max-w-lg rounded-lg bg-white shadow-xl">
+        <div class="border-b border-slate-200 px-6 py-4">
+          <h3 id="modal-title" class="text-lg font-semibold">Add menu item</h3>
+        </div>
+        <form id="modal-form" class="space-y-4 px-6 py-5"></form>
+        <div class="flex justify-end gap-2 border-t border-slate-200 bg-slate-50 px-6 py-3">
+          <button
+            type="button"
+            data-action="close-modal"
+            class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="modal-form"
+            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DRAWER (used by Design 4) -->
+    <div id="drawer" class="fixed inset-0 z-30 hidden">
+      <div data-action="close-drawer" class="absolute inset-0 drawer-backdrop"></div>
+      <aside class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+          <h3 id="drawer-title" class="text-lg font-semibold">Add menu item</h3>
+          <button
+            data-action="close-drawer"
+            class="rounded p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <form id="drawer-form" class="flex-1 space-y-4 overflow-y-auto px-6 py-5"></form>
+        <div class="flex justify-end gap-2 border-t border-slate-200 bg-slate-50 px-6 py-3">
+          <button
+            type="button"
+            data-action="close-drawer"
+            class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="drawer-form"
+            class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Save
+          </button>
+        </div>
+      </aside>
+    </div>
+
+    <script>
+      // ---- Shared data ----
+      const TAGS = [
+        "Breakfast", "Lunch", "Dinner", "Dessert", "Drink",
+        "Appetizer", "Spicy", "Vegetarian", "Alcoholic",
+      ];
+
+      let nextId = 5;
+      const items = [
+        {
+          id: "1",
+          name: "Margherita Pizza",
+          description: "Tomato, fresh mozzarella, basil, olive oil.",
+          price: 14.5,
+          image: "pizza.jpg",
+          tags: ["Lunch", "Dinner", "Vegetarian"],
+        },
+        {
+          id: "2",
+          name: "Cajun Pasta",
+          description: "Penne in a smoky, spicy cream sauce with andouille sausage.",
+          price: 16.0,
+          image: "cajun-pasta.jpg",
+          tags: ["Dinner", "Spicy"],
+        },
+        {
+          id: "3",
+          name: "Banana French Toast",
+          description: "Brioche, caramelized bananas, maple syrup.",
+          price: 11.0,
+          image: "banana-french-toast.jpg",
+          tags: ["Breakfast", "Vegetarian"],
+        },
+        {
+          id: "4",
+          name: "Mojito",
+          description: "White rum, lime, mint, soda.",
+          price: 9.0,
+          image: "mojito.jpg",
+          tags: ["Drink", "Alcoholic"],
+        },
+      ];
+
+      // ---- Helpers ----
+      const $ = (sel) => document.querySelector(sel);
+      const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+      const fmt = (n) => `$${Number(n).toFixed(2)}`;
+
+      function rerenderAll() {
+        renderTableModal();
+        renderInlineTable();
+        renderMasterList();
+        // Keep current master-detail selection if it still exists
+        if (!items.find((i) => i.id === masterSelectedId)) {
+          masterSelectedId = items[0]?.id ?? null;
+        }
+        renderMasterDetailForm();
+        renderCardGrid();
+        renderDedicatedForm();
+      }
+
+      function tagCheckboxes(name, selected = []) {
+        return TAGS.map(
+          (t) => `
+          <label class="flex items-center gap-2 rounded border border-slate-200 px-2 py-1 text-xs">
+            <input type="checkbox" name="${name}" value="${t}" ${selected.includes(t) ? "checked" : ""} />
+            ${t}
+          </label>`,
+        ).join("");
+      }
+
+      function readFormItem(form) {
+        const fd = new FormData(form);
+        return {
+          name: (fd.get("name") || "").toString().trim(),
+          description: (fd.get("description") || "").toString().trim(),
+          price: parseFloat(fd.get("price")) || 0,
+          image: (fd.get("image") || "pizza.jpg").toString(),
+          tags: fd.getAll("tags").map(String),
+        };
+      }
+
+      // ===========================================================
+      // Design 1 — Table + modal
+      // ===========================================================
+      function renderTableModal() {
+        const tbody = $("#table-modal-rows");
+        tbody.innerHTML = items
+          .map(
+            (it) => `
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-3">
+                <img src="/images/${it.image}" alt="" class="h-10 w-10 rounded object-cover" />
+                <div>
+                  <div class="font-medium text-slate-900">${it.name}</div>
+                  <div class="text-xs text-slate-500 max-w-md truncate">${it.description}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex flex-wrap gap-1">
+                ${it.tags
+                  .map(
+                    (t) =>
+                      `<span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">${t}</span>`,
+                  )
+                  .join("")}
+              </div>
+            </td>
+            <td class="px-4 py-3 font-medium">${fmt(it.price)}</td>
+            <td class="px-4 py-3 text-right">
+              <button data-action="open-edit-modal" data-id="${it.id}"
+                class="rounded-md border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">
+                Edit
+              </button>
+              <button data-action="delete-item" data-id="${it.id}"
+                class="ml-1 rounded-md border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50">
+                Delete
+              </button>
+            </td>
+          </tr>`,
+          )
+          .join("");
+      }
+
+      let modalEditingId = null;
+      function openModal(id = null) {
+        modalEditingId = id;
+        const it = id ? items.find((i) => i.id === id) : null;
+        $("#modal-title").textContent = it ? `Edit ${it.name}` : "Add menu item";
+        $("#modal-form").innerHTML = `
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Name</label>
+            <input name="name" required value="${it?.name ?? ""}"
+              class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Description</label>
+            <textarea name="description" rows="2"
+              class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">${it?.description ?? ""}</textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Price</label>
+              <input name="price" type="number" step="0.01" min="0" required value="${it?.price ?? ""}"
+                class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Image filename</label>
+              <input name="image" value="${it?.image ?? "pizza.jpg"}"
+                class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-2">Tags</label>
+            <div class="flex flex-wrap gap-2">${tagCheckboxes("tags", it?.tags ?? [])}</div>
+          </div>
+        `;
+        $("#modal").classList.remove("hidden");
+        $("#modal").classList.add("flex");
+      }
+      function closeModal() {
+        $("#modal").classList.add("hidden");
+        $("#modal").classList.remove("flex");
+        modalEditingId = null;
+      }
+
+      $("#modal-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = readFormItem(e.target);
+        if (modalEditingId) {
+          const it = items.find((i) => i.id === modalEditingId);
+          Object.assign(it, data);
+        } else {
+          items.push({ id: String(nextId++), ...data });
+        }
+        closeModal();
+        rerenderAll();
+      });
+
+      // ===========================================================
+      // Design 2 — Inline editable table
+      // ===========================================================
+      function renderInlineTable() {
+        const tbody = $("#inline-table-rows");
+        tbody.innerHTML = items
+          .map(
+            (it) => `
+          <tr>
+            <td class="px-4 py-2">
+              <input data-inline="${it.id}" data-field="name" value="${it.name}"
+                class="w-full rounded border border-transparent px-2 py-1 text-sm hover:border-slate-200 focus:border-blue-400 focus:bg-blue-50 focus:outline-none" />
+            </td>
+            <td class="px-4 py-2">
+              <input data-inline="${it.id}" data-field="description" value="${it.description}"
+                class="w-full rounded border border-transparent px-2 py-1 text-sm hover:border-slate-200 focus:border-blue-400 focus:bg-blue-50 focus:outline-none" />
+            </td>
+            <td class="px-4 py-2">
+              <input data-inline="${it.id}" data-field="price" type="number" step="0.01" value="${it.price}"
+                class="w-24 rounded border border-transparent px-2 py-1 text-sm text-right hover:border-slate-200 focus:border-blue-400 focus:bg-blue-50 focus:outline-none" />
+            </td>
+            <td class="px-4 py-2 text-right">
+              <button data-action="delete-item" data-id="${it.id}"
+                class="text-xs text-red-600 hover:underline">Delete</button>
+            </td>
+          </tr>`,
+          )
+          .join("");
+      }
+
+      document.addEventListener("change", (e) => {
+        const input = e.target.closest("[data-inline]");
+        if (!input) return;
+        const it = items.find((i) => i.id === input.dataset.inline);
+        if (!it) return;
+        const field = input.dataset.field;
+        it[field] = field === "price" ? parseFloat(input.value) || 0 : input.value;
+        // Re-render others; preserve focus on this input
+        const wasFocused = document.activeElement === input;
+        rerenderAll();
+        if (wasFocused) {
+          const again = document.querySelector(
+            `[data-inline="${it.id}"][data-field="${field}"]`,
+          );
+          again?.focus();
+        }
+      });
+
+      // ===========================================================
+      // Design 3 — Master-detail
+      // ===========================================================
+      let masterSelectedId = items[0]?.id ?? null;
+
+      function renderMasterList() {
+        const ul = $("#master-list");
+        ul.innerHTML = items
+          .map(
+            (it) => `
+          <li>
+            <button data-action="select-master" data-id="${it.id}"
+              class="flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition ${
+                it.id === masterSelectedId
+                  ? "bg-blue-50 text-blue-900"
+                  : "hover:bg-slate-50"
+              }">
+              <img src="/images/${it.image}" class="h-9 w-9 flex-none rounded object-cover" alt="" />
+              <div class="min-w-0 flex-1">
+                <div class="truncate font-medium">${it.name}</div>
+                <div class="truncate text-xs text-slate-500">${fmt(it.price)}</div>
+              </div>
+            </button>
+          </li>`,
+          )
+          .join("");
+      }
+
+      function renderMasterDetailForm() {
+        const root = $("#master-detail-form");
+        const it = items.find((i) => i.id === masterSelectedId);
+        if (!it) {
+          root.innerHTML = `<div class="flex h-full items-center justify-center text-sm text-slate-500">
+            Select an item on the left, or click "+ New item".
+          </div>`;
+          return;
+        }
+        root.innerHTML = `
+          <form id="master-form" class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold">${it.name}</h3>
+              <button type="button" data-action="delete-item" data-id="${it.id}"
+                class="rounded-md border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50">
+                Delete
+              </button>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Name</label>
+              <input name="name" value="${it.name}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Description</label>
+              <textarea name="description" rows="3" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">${it.description}</textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Price</label>
+                <input name="price" type="number" step="0.01" value="${it.price}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Image</label>
+                <input name="image" value="${it.image}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-2">Tags</label>
+              <div class="flex flex-wrap gap-2">${tagCheckboxes("tags", it.tags)}</div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="submit" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Save changes</button>
+            </div>
+          </form>
+        `;
+        $("#master-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          Object.assign(it, readFormItem(e.target));
+          rerenderAll();
+        });
+      }
+
+      // ===========================================================
+      // Design 4 — Card grid + drawer
+      // ===========================================================
+      function renderCardGrid() {
+        const root = $("#card-grid");
+        root.innerHTML = items
+          .map(
+            (it) => `
+          <div class="group relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+            <img src="/images/${it.image}" alt="${it.name}" class="h-40 w-full object-cover" />
+            <div class="absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:opacity-100">
+              <button data-action="open-drawer-edit" data-id="${it.id}"
+                class="rounded-md bg-white/95 px-2 py-1 text-xs font-medium text-slate-700 shadow hover:bg-white">
+                Edit
+              </button>
+              <button data-action="delete-item" data-id="${it.id}"
+                class="rounded-md bg-white/95 px-2 py-1 text-xs font-medium text-red-600 shadow hover:bg-white">
+                Delete
+              </button>
+            </div>
+            <div class="p-4">
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="font-semibold text-slate-900">${it.name}</h3>
+                <span class="font-semibold">${fmt(it.price)}</span>
+              </div>
+              <p class="mt-1 line-clamp-2 text-sm text-slate-600">${it.description}</p>
+              <div class="mt-2 flex flex-wrap gap-1">
+                ${it.tags
+                  .map(
+                    (t) =>
+                      `<span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">${t}</span>`,
+                  )
+                  .join("")}
+              </div>
+            </div>
+          </div>`,
+          )
+          .join("");
+      }
+
+      let drawerEditingId = null;
+      function openDrawer(id = null) {
+        drawerEditingId = id;
+        const it = id ? items.find((i) => i.id === id) : null;
+        $("#drawer-title").textContent = it ? `Edit ${it.name}` : "Add menu item";
+        $("#drawer-form").innerHTML = `
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Name</label>
+            <input name="name" required value="${it?.name ?? ""}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Description</label>
+            <textarea name="description" rows="3" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm">${it?.description ?? ""}</textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Price</label>
+              <input name="price" type="number" step="0.01" required value="${it?.price ?? ""}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Image</label>
+              <input name="image" value="${it?.image ?? "pizza.jpg"}" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-2">Tags</label>
+            <div class="flex flex-wrap gap-2">${tagCheckboxes("tags", it?.tags ?? [])}</div>
+          </div>
+        `;
+        $("#drawer").classList.remove("hidden");
+      }
+      function closeDrawer() {
+        $("#drawer").classList.add("hidden");
+        drawerEditingId = null;
+      }
+      $("#drawer-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = readFormItem(e.target);
+        if (drawerEditingId) {
+          Object.assign(items.find((i) => i.id === drawerEditingId), data);
+        } else {
+          items.push({ id: String(nextId++), ...data });
+        }
+        closeDrawer();
+        rerenderAll();
+      });
+
+      // ===========================================================
+      // Design 5 — Dedicated page
+      // ===========================================================
+      function renderDedicatedForm() {
+        const root = $("#dedicated-form");
+        const it = items[0]; // demo: edit first item
+        if (!it) {
+          root.innerHTML = "";
+          return;
+        }
+        root.innerHTML = `
+          <div class="space-y-5">
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Name</label>
+              <input value="${it.name}" class="w-full rounded-md border border-slate-300 px-3 py-2" />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-1">Description</label>
+              <textarea rows="4" class="w-full rounded-md border border-slate-300 px-3 py-2">${it.description}</textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Price</label>
+                <input type="number" step="0.01" value="${it.price}" class="w-full rounded-md border border-slate-300 px-3 py-2" />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Image filename</label>
+                <input value="${it.image}" class="w-full rounded-md border border-slate-300 px-3 py-2" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-slate-700 mb-2">Tags</label>
+              <div class="flex flex-wrap gap-2">${tagCheckboxes("dedicated-tags", it.tags)}</div>
+            </div>
+            <div class="flex justify-between pt-2">
+              <button type="button" class="rounded-md border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50">
+                Delete item
+              </button>
+              <div class="flex gap-2">
+                <button type="button" class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
+                <button type="submit" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Save changes</button>
+              </div>
+            </div>
+          </div>
+          <aside class="space-y-3">
+            <div class="text-xs font-semibold uppercase tracking-wide text-slate-500">Live preview</div>
+            <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+              <img src="/images/${it.image}" alt="" class="h-32 w-full object-cover" />
+              <div class="p-3">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold">${it.name}</span>
+                  <span class="font-semibold">${fmt(it.price)}</span>
+                </div>
+                <p class="mt-1 text-xs text-slate-600">${it.description}</p>
+              </div>
+            </div>
+          </aside>
+        `;
+      }
+
+      // ===========================================================
+      // Global click router
+      // ===========================================================
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+
+        switch (action) {
+          case "open-add-modal":
+            openModal(null);
+            break;
+          case "open-edit-modal":
+            openModal(id);
+            break;
+          case "close-modal":
+            closeModal();
+            break;
+          case "add-inline-row": {
+            items.push({
+              id: String(nextId++),
+              name: "New item",
+              description: "",
+              price: 0,
+              image: "pizza.jpg",
+              tags: [],
+            });
+            rerenderAll();
+            break;
+          }
+          case "delete-item": {
+            const it = items.find((i) => i.id === id);
+            if (it && confirm(`Delete "${it.name}"? This can't be undone.`)) {
+              const idx = items.findIndex((i) => i.id === id);
+              items.splice(idx, 1);
+              rerenderAll();
+            }
+            break;
+          }
+          case "select-master":
+            masterSelectedId = id;
+            rerenderAll();
+            break;
+          case "new-master-detail":
+            items.push({
+              id: String(nextId++),
+              name: "New item",
+              description: "",
+              price: 0,
+              image: "pizza.jpg",
+              tags: [],
+            });
+            masterSelectedId = items[items.length - 1].id;
+            rerenderAll();
+            break;
+          case "open-drawer-add":
+            openDrawer(null);
+            break;
+          case "open-drawer-edit":
+            openDrawer(id);
+            break;
+          case "close-drawer":
+            closeDrawer();
+            break;
+        }
+      });
+
+      // Initial render
+      rerenderAll();
+    </script>
+  </body>
+</html>
