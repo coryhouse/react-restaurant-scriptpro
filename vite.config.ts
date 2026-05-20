@@ -16,4 +16,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    watch: {
+      // json-server writes to db.json on every mutation, which would
+      // otherwise trigger a full page reload via Vite's HMR client.
+      ignored: ["**/db.json"],
+    },
+  },
 });
