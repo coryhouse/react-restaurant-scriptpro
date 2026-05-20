@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import z from "zod";
 import { Button } from "./components/ui/button";
@@ -22,6 +22,14 @@ export default function Login() {
   const [touched, setTouched] = useState<LoginFormTouched>({});
   const { setEmail: setUserEmail } = useUser();
   const navigate = useNavigate();
+  const fieldRefs: Record<
+    LoginField,
+    React.RefObject<HTMLInputElement | null>
+  > = {
+    email: useRef<HTMLInputElement>(null),
+    password: useRef<HTMLInputElement>(null),
+  };
+  const fieldOrder: LoginField[] = ["email", "password"];
 
   function validateField(field: LoginField, value: string) {
     const result = loginSchema.shape[field].safeParse(value);
@@ -48,6 +56,12 @@ export default function Login() {
             }
             setErrors(fieldErrors);
             setTouched({ email: true, password: true });
+            const firstErrorField = fieldOrder.find(
+              (field) => fieldErrors[field],
+            );
+            if (firstErrorField) {
+              fieldRefs[firstErrorField].current?.focus();
+            }
             return;
           }
           setErrors({});
@@ -61,10 +75,7 @@ export default function Login() {
             aria-labelledby="error-summary-heading"
             className="mb-4 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-destructive"
           >
-            <h2
-              id="error-summary-heading"
-              className="text-sm font-semibold"
-            >
+            <h2 id="error-summary-heading" className="text-sm font-semibold">
               Please fix the following{" "}
               {Object.values(errors).filter(Boolean).length === 1
                 ? "error"
@@ -92,6 +103,7 @@ export default function Login() {
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input
             id="email"
+            ref={fieldRefs.email}
             type="text"
             placeholder="Enter your email"
             value={email}
@@ -111,6 +123,7 @@ export default function Login() {
           <FieldLabel htmlFor="password">Password</FieldLabel>
           <Input
             id="password"
+            ref={fieldRefs.password}
             type="password"
             placeholder="Enter your password"
             value={password}
