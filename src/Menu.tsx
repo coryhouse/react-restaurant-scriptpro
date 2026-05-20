@@ -2,7 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { foodSchema } from "./food";
 
 export default function Menu() {
-  const { data: foods = [], isLoading } = useQuery({
+  const {
+    data: foods = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["foods"],
     throwOnError: true,
     queryFn: async () => {
@@ -14,6 +18,10 @@ export default function Menu() {
       return foodSchema.array().parse(data); // runtime validation
     },
   });
+
+  if (isError) {
+    return <div className="p-6">Oops!</div>;
+  }
 
   if (isLoading) {
     return <div className="p-6">Loading...</div>;
